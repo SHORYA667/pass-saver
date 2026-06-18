@@ -12,7 +12,7 @@ const S = {
   loading: false,
 };
 
-const API_BASE = "http://localhost:8000/api";
+const API_BASE = "https://pass-saver.onrender.com//api";
 
 function getAuthHeaders() {
   const token = localStorage.getItem("token");
