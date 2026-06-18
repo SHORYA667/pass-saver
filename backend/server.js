@@ -17,8 +17,13 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Serve frontend
-app.use(express.static(path.join(__dirname, "../frontend")));
+// Root Route
+app.get("/", (req, res) => {
+  res.json({
+    success: true,
+    message: "PassSaver Backend API is Running 🚀",
+  });
+});
 
 // Auth Routes
 app.use("/api", authRoutes);
@@ -44,27 +49,6 @@ app.post("/api/passwords", authRequired, async (req, res) => {
     const userId = req.user._id;
 
     // #region agent log
-    fetch("http://127.0.0.1:7729/ingest/1f7d9069-6476-45fe-9bb9-faf6ddca8657", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "X-Debug-Session-Id": "213814",
-      },
-      body: JSON.stringify({
-        sessionId: "213814",
-        location: "server.js:passwords:post",
-        message: "Saving password to MongoDB",
-        data: {
-          userId: String(userId),
-          website,
-          hasUsername: !!username,
-          hasPassword: !!password,
-        },
-        timestamp: Date.now(),
-        hypothesisId: "B",
-      }),
-    }).catch(() => {});
-    // #endregion
 
     if (!website || !username || !password) {
       return res.status(400).json({
@@ -83,22 +67,6 @@ app.post("/api/passwords", authRequired, async (req, res) => {
     });
 
     // #region agent log
-    fetch("http://127.0.0.1:7729/ingest/1f7d9069-6476-45fe-9bb9-faf6ddca8657", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "X-Debug-Session-Id": "213814",
-      },
-      body: JSON.stringify({
-        sessionId: "213814",
-        location: "server.js:passwords:created",
-        message: "Password saved in MongoDB",
-        data: { passwordId: String(newPassword._id) },
-        timestamp: Date.now(),
-        hypothesisId: "B",
-      }),
-    }).catch(() => {});
-    // #endregion
 
     res.status(201).json({
       success: true,
@@ -123,27 +91,6 @@ app.get("/api/passwords", authRequired, async (req, res) => {
     }).sort({
       createdAt: -1,
     });
-
-    // #region agent log
-    fetch("http://127.0.0.1:7729/ingest/1f7d9069-6476-45fe-9bb9-faf6ddca8657", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "X-Debug-Session-Id": "213814",
-      },
-      body: JSON.stringify({
-        sessionId: "213814",
-        location: "server.js:passwords:get",
-        message: "Fetched passwords from MongoDB",
-        data: {
-          userId: String(req.user._id),
-          count: passwords.length,
-        },
-        timestamp: Date.now(),
-        hypothesisId: "C",
-      }),
-    }).catch(() => {});
-    // #endregion
 
     res.json({
       success: true,
