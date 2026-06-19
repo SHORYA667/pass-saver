@@ -63,27 +63,7 @@ router.post("/signup", async (req, res) => {
     const password = req.body.password;
 
     // #region agent log
-    fetch("http://127.0.0.1:7729/ingest/1f7d9069-6476-45fe-9bb9-faf6ddca8657", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "X-Debug-Session-Id": "213814",
-      },
-      body: JSON.stringify({
-        sessionId: "213814",
-        location: "auth.js:signup:entry",
-        message: "Signup attempt",
-        data: {
-          hasFullName: !!fullName,
-          hasUsername: !!username,
-          hasEmail: !!email,
-          hasPassword: !!password,
-        },
-        timestamp: Date.now(),
-        hypothesisId: "A",
-      }),
-    }).catch(() => {});
-    // #endregion
+  
 
     if (!fullName || !username || !email || !password) {
       return res.status(400).json({
@@ -119,23 +99,7 @@ router.post("/signup", async (req, res) => {
       password: hashedPassword,
     });
 
-    // #region agent log
-    fetch("http://127.0.0.1:7729/ingest/1f7d9069-6476-45fe-9bb9-faf6ddca8657", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "X-Debug-Session-Id": "213814",
-      },
-      body: JSON.stringify({
-        sessionId: "213814",
-        location: "auth.js:signup:created",
-        message: "User created in MongoDB",
-        data: { userId: String(user._id), email: user.email },
-        timestamp: Date.now(),
-        hypothesisId: "A",
-      }),
-    }).catch(() => {});
-    // #endregion
+    
 
     const token = jwt.sign({ id: user._id }, jwtSecret(), {
       expiresIn: "7d",
@@ -150,23 +114,7 @@ router.post("/signup", async (req, res) => {
   } catch (error) {
     console.error("Signup Error:", error);
 
-    // #region agent log
-    fetch("http://127.0.0.1:7729/ingest/1f7d9069-6476-45fe-9bb9-faf6ddca8657", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "X-Debug-Session-Id": "213814",
-      },
-      body: JSON.stringify({
-        sessionId: "213814",
-        location: "auth.js:signup:error",
-        message: "Signup failed",
-        data: { errorMessage: error.message },
-        timestamp: Date.now(),
-        hypothesisId: "A",
-      }),
-    }).catch(() => {});
-    // #endregion
+   
 
     res.status(500).json({
       success: false,
@@ -181,26 +129,7 @@ router.post("/login", async (req, res) => {
     const password = req.body.password;
 
     // #region agent log
-    fetch("http://127.0.0.1:7729/ingest/1f7d9069-6476-45fe-9bb9-faf6ddca8657", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "X-Debug-Session-Id": "213814",
-      },
-      body: JSON.stringify({
-        sessionId: "213814",
-        location: "auth.js:login:entry",
-        message: "Login attempt",
-        data: {
-          identifier: identifier || null,
-          hasPassword: !!password,
-          bodyKeys: Object.keys(req.body || {}),
-        },
-        timestamp: Date.now(),
-        hypothesisId: "A",
-      }),
-    }).catch(() => {});
-    // #endregion
+   
 
     if (!identifier || !password) {
       return res.status(400).json({
@@ -213,27 +142,6 @@ router.post("/login", async (req, res) => {
       $or: [{ email: identifier }, { username: identifier }],
     }).select("+password");
 
-    // #region agent log
-    fetch("http://127.0.0.1:7729/ingest/1f7d9069-6476-45fe-9bb9-faf6ddca8657", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "X-Debug-Session-Id": "213814",
-      },
-      body: JSON.stringify({
-        sessionId: "213814",
-        location: "auth.js:login:query",
-        message: "User lookup result",
-        data: {
-          found: !!user,
-          userId: user ? String(user._id) : null,
-          hasPasswordField: !!user?.password,
-        },
-        timestamp: Date.now(),
-        hypothesisId: "B",
-      }),
-    }).catch(() => {});
-    // #endregion
 
     if (!user) {
       return res.status(404).json({
@@ -244,23 +152,7 @@ router.post("/login", async (req, res) => {
 
     const validPassword = await bcrypt.compare(password, user.password);
 
-    // #region agent log
-    fetch("http://127.0.0.1:7729/ingest/1f7d9069-6476-45fe-9bb9-faf6ddca8657", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "X-Debug-Session-Id": "213814",
-      },
-      body: JSON.stringify({
-        sessionId: "213814",
-        location: "auth.js:login:password",
-        message: "Password compare",
-        data: { validPassword },
-        timestamp: Date.now(),
-        hypothesisId: "C",
-      }),
-    }).catch(() => {});
-    // #endregion
+ 
 
     if (!validPassword) {
       return res.status(401).json({
@@ -282,23 +174,6 @@ router.post("/login", async (req, res) => {
   } catch (error) {
     console.error("Login Error:", error);
 
-    // #region agent log
-    fetch("http://127.0.0.1:7729/ingest/1f7d9069-6476-45fe-9bb9-faf6ddca8657", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "X-Debug-Session-Id": "213814",
-      },
-      body: JSON.stringify({
-        sessionId: "213814",
-        location: "auth.js:login:catch",
-        message: "Login server error",
-        data: { errorMessage: error.message, errorName: error.name },
-        timestamp: Date.now(),
-        hypothesisId: "D",
-      }),
-    }).catch(() => {});
-    // #endregion
 
     return res.status(500).json({
       success: false,
