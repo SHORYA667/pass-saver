@@ -404,43 +404,38 @@ async function doSignup() {
   }
 
   try {
-    const response = await fetch(`${API_BASE}/signup`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        fullName,
-        username,
-        email,
-        password,
-      }),
-    });
+  const response = await fetch(`${API_BASE}/signup`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      fullName,
+      username,
+      email,
+      password,
+    }),
+  });
 
-    const data = await response.json();
+  const data = await response.json();
 
-    console.log("Signup Response:", data);
+  console.log("Status:", response.status);
+  console.log("Signup Response:", data);
 
-    if (response.ok) {
-      toast("Account Created Successfully", "success");
-
-      // Clear form
-      document.getElementById("s-name").value = "";
-      document.getElementById("s-uname").value = "";
-      document.getElementById("s-email").value = "";
-      document.getElementById("s-pw").value = "";
-      document.getElementById("s-cpw").value = "";
-
-      // Redirect to login page
-      S.page = "login";
-      render();
-    } else {
-      toast(data.message || "Signup Failed", "error");
-    }
-  } catch (error) {
-    console.error("Signup Error:", error);
-    toast("Cannot connect to backend server", "error");
+  if (!response.ok) {
+    toast(data.message || "Signup failed", "error");
+    return;
   }
+
+  localStorage.setItem("token", data.token);
+
+  toast("Account created successfully!", "success");
+
+  // Redirect to dashboard if needed
+  // window.location.href = "dashboard.html";
+} catch (error) {
+  console.error("Signup Error:", error);
+  toast("Cannot connect to backend server", "error");
 }
 
 // ─── APP ─────────────────────────────────────────────────
